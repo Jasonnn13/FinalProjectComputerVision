@@ -157,19 +157,8 @@ with col1:
 with col2:
 	# Prefer local static image if present; fallback to remote URL
 	hero_local = PUBLIC_DIR / "1.png"
-	if hero_local.exists():
-		st.image(str(hero_local), use_container_width=True, width=500)
-		st.caption(f"Loaded hero from: {hero_local}")
-	else:
-		tried_remote = False
-		try:
-			st.image("https://i.ibb.co/rRGQt17/1.png", use_container_width=True, width=500)
-			tried_remote = True
-			st.caption("Loaded hero from remote fallback.")
-		except Exception:
-			pass
-		if not tried_remote:
-			st.info("Place an image at `public/1.png` to display here.")
+	st.image(str(hero_local), use_container_width=True, width=500)
+
         
 
 # Info section below start button
@@ -215,32 +204,10 @@ with row2_left:
 with row2_right:
 	with st.container(border=True):
 		st.subheader("Normal")
-
-	# Debug panel to help diagnose asset issues in deployment
-	with st.expander("Debug: Static Assets"):
-		from pathlib import Path as _Path
-		local_app_dir = _Path(__file__).parent.resolve()
-		local_public_dir = local_app_dir / "public"
-		st.write(f"App dir: `{local_app_dir}`")
-		st.write(f"Public dir: `{local_public_dir}`")
-		st.write(f"Public exists: `{local_public_dir.exists()}`")
-		try:
-			entries = []
-			if local_public_dir.exists():
-				for p in sorted(local_public_dir.glob("*")):
-					entries.append(f"{p.name} | exists={p.exists()} | size={(p.stat().st_size if p.exists() else 0)}")
-			st.write("Contents:")
-			if entries:
-				for e in entries:
-					st.text(e)
-			else:
-				st.text("(empty or missing)")
-		except Exception as e:
-			st.write("Error listing public dir:")
-			st.exception(e)
-		st.write("No signs of detectable cancer based on the scan."
-           "No signs of detectable cancer were found based on the uploaded scan. The AI did not identify any suspicious growths (cancer)."
-           )
+		st.write(
+			"No signs of detectable cancer were found based on the uploaded scan. "
+			"The AI did not identify any suspicious growths (cancer)."
+		)
 
 st.subheader("What Happens if It’s Left Untreated?")
 st.write(
@@ -279,44 +246,12 @@ with st.sidebar:
 		("loss.png", "Loss"),
 	]:
 		img_path = PUBLIC_DIR / rel
-		if img_path.exists():
-			st.caption(f"{label} (from {img_path.name})")
-			st.image(str(img_path), use_container_width=True)
-			shown_any = True
-		else:
-			# Fallback: try working-directory relative
-			fallback_path = Path("public") / rel
-			try:
-				st.caption(f"{label} (fallback {fallback_path})")
-				st.image(str(fallback_path), use_container_width=True)
-				shown_any = True
-			except Exception:
-				pass
+		st.caption(f"{label} (from {img_path.name})")
+		st.image(str(img_path), use_container_width=True)
+		shown_any = True
+
 	if not shown_any:
 		st.caption("Place images like public/acc.png and public/loss.png to display here.")
-
-	# Debug: show resolved paths and found files to diagnose deployment issues
-	with st.expander("Debug: Static Assets"):
-		st.write(f"App dir: `{APP_DIR}`")
-		st.write(f"CWD: `{Path.cwd()}`")
-		st.write("Public candidates:")
-		for idx, cand in enumerate(_public_candidates, 1):
-			st.text(f"{idx}. {cand} | exists={cand.exists()}")
-		st.write(f"Chosen PUBLIC_DIR: `{PUBLIC_DIR}` | exists={PUBLIC_DIR.exists()}")
-		try:
-			entries = []
-			if PUBLIC_DIR.exists():
-				for p in sorted(PUBLIC_DIR.glob("*")):
-					entries.append(f"{p.name} | size={(p.stat().st_size if p.exists() else 0)}")
-			st.write("PUBLIC_DIR contents:")
-			if entries:
-				for e in entries:
-					st.text(e)
-			else:
-				st.text("(empty or missing)")
-		except Exception as e:
-			st.write("Error listing PUBLIC_DIR:")
-			st.exception(e)
 
 
 @st.cache_resource(show_spinner=False)
