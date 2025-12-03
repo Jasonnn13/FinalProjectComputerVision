@@ -194,6 +194,29 @@ with row2_left:
 with row2_right:
 	with st.container(border=True):
 		st.subheader("Normal")
+
+	# Debug panel to help diagnose asset issues in deployment
+	with st.expander("Debug: Static Assets"):
+		from pathlib import Path as _Path
+		local_app_dir = _Path(__file__).parent.resolve()
+		local_public_dir = local_app_dir / "public"
+		st.write(f"App dir: `{local_app_dir}`")
+		st.write(f"Public dir: `{local_public_dir}`")
+		st.write(f"Public exists: `{local_public_dir.exists()}`")
+		try:
+			entries = []
+			if local_public_dir.exists():
+				for p in sorted(local_public_dir.glob("*")):
+					entries.append(f"{p.name} | exists={p.exists()} | size={(p.stat().st_size if p.exists() else 0)}")
+			st.write("Contents:")
+			if entries:
+				for e in entries:
+					st.text(e)
+			else:
+				st.text("(empty or missing)")
+		except Exception as e:
+			st.write("Error listing public dir:")
+			st.exception(e)
 		st.write("No signs of detectable cancer based on the scan."
            "No signs of detectable cancer were found based on the uploaded scan. The AI did not identify any suspicious growths (cancer)."
            )
