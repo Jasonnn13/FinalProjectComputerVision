@@ -22,7 +22,9 @@ def _is_lfs_pointer(path: str) -> bool:
 
 @st.cache_resource(show_spinner=True)
 def load_model(model_path: str) -> Tuple[nn.Module, int]:
+    # Build base model
     model = convnext_large(weights=None)
+    # Detect common issue: LFS pointer file not downloaded
     if _is_lfs_pointer(model_path):
         raise RuntimeError(
             "Model file appears to be a Git LFS pointer. Run 'git lfs pull' or 'git lfs checkout' to download the actual binary."
@@ -137,8 +139,7 @@ if uploaded is not None and os.path.exists(MODEL_PATH):
         col1, col2 = st.columns([1, 1])
         with col1:
             st.subheader("Preview")
-            # Streamlit deprecates/use different arg: use_column_width instead of use_container_width
-            st.image(image, caption="Uploaded CT image", use_column_width=True)
+            st.image(image, caption="Uploaded CT image", use_container_width=True)
         with col2:
             st.subheader("Prediction")
             model, num_classes = load_model(MODEL_PATH)  # ensure loaded
