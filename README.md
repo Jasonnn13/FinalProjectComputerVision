@@ -8,11 +8,6 @@ A simple, good-looking Streamlit web app that loads a ConvNeXt-Large PyTorch mod
 - Top-K predictions with confidence bar chart
  - Generic labels generated automatically (Class 0..N)
 
-## Setup (Windows PowerShell)
-```powershell
-# Navigate to project folder
-cd "c:\Users\bened\Documents\Kuliah\Sem5\ComputerVision\FinalProject"
-
 # (Optional) Create & activate virtual environment
 python -m venv .venv; .\.venv\Scripts\Activate.ps1
 
