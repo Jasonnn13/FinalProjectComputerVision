@@ -134,6 +134,55 @@ def predict(model: nn.Module, tensor: torch.Tensor) -> Tuple[int, float, np.ndar
 
 
 st.set_page_config(page_title="CT Scan Classifier", page_icon="🩺", layout="centered")
+
+# Custom CSS for UI Enhancement
+st.markdown("""
+<style>
+    /* Main Background & Fonts */
+    .stApp {
+        background-color: #fcfdfd;
+    }
+    h1, h2, h3 {
+        color: #2c3e50;
+        font-family: 'Helvetica Neue', sans-serif;
+    }
+    h1 {
+        font-weight: 700;
+        color: #0f52ba; /* Medical Blue */
+    }
+    
+    /* Info Cards Styling */
+    div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] {
+        /* Generic adjustment for nested blocks if needed */
+    }
+    
+    /* Custom Button for "Start Detecting" (Anchor Link) */
+    a.custom-btn {
+        display: inline-block;
+        padding: 0.6em 1.2em;
+        margin-top: 20px;
+        color: #ffffff !important;
+        background-color: #ff4b4b;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    a.custom-btn:hover {
+        background-color: #ff3333;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Style for the metrics/prediction result */
+    div[data-testid="stMetricValue"] {
+        font-size: 1.5rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Resolve static asset directory robustly (works locally and on Streamlit Cloud)
 APP_DIR = Path(__file__).parent.resolve()
 _public_candidates = [
@@ -142,26 +191,32 @@ _public_candidates = [
 	APP_DIR.parent / "public",
 ]
 PUBLIC_DIR = next((p for p in _public_candidates if p.exists()), _public_candidates[0])
+
+# --- HERO SECTION ---
 st.title("Detect Chest Cancer with CTSense")
 st.caption("Fast, Accurate, and Effortless!")
 col1, col2 = st.columns([2, 1])
 with col1:
-    st.write(
+    st.markdown(
 		"""
-		Welcome to the future of chest cancer detection. With the power of CTSense, you can analyze your CT or X-ray scans with just one click and receive fast, reliable insights powered by advanced AI technology.
+		<div style="font-size: 1.1em; color: #444; line-height: 1.6;">
+		Welcome to the future of chest cancer detection. With the power of <b>CTSense</b>, 
+		you can analyze your <b>CT scans</b> with just one click and receive fast, reliable insights 
+		powered by advanced AI technology.
+		<br><br>
 		Start your scan now and experience precision made simple.
-		"""
+		</div>
+		""", unsafe_allow_html=True
 	)
-    st.button("Start Detecting")
+    # Replaced st.button with an HTML anchor link styled as a button
+    st.markdown('<a href="#prediction-section" class="custom-btn">Start Detecting</a>', unsafe_allow_html=True)
 
 with col2:
 	# Prefer local static image if present; fallback to remote URL
 	hero_local = PUBLIC_DIR / "1.png"
 	st.image(str(hero_local), use_column_width=True, width=500)
 
-        
-
-# Info section below start button
+# --- INFO SECTION ---
 st.divider()
 st.header("What You Need to Know About Chest Cancer")
 
@@ -214,8 +269,6 @@ st.write(
 	"Without treatment, chest cancer can spread to other organs, reduce lung function, "
 	"cause severe breathing issues, and become life-threatening. Early diagnosis significantly improves "
 	"treatment options and survival rates."
- 
-    
 )
 
 st.subheader("How Do You Detect It?")
@@ -230,9 +283,13 @@ st.write(
 
 st.divider()
 
+# --- PREDICTION / CLASSIFIER SECTION ---
+# Add an invisible anchor for the button to scroll to
+st.markdown('<div id="prediction-section"></div>', unsafe_allow_html=True)
+
 st.title("CT Scan Classifier (ConvNeXt Large)")
 
-
+# Sidebar for Model Info & Graphs
 with st.sidebar:
 	st.subheader("CTSense")
 	st.write("Using weights: `CTScan_ConvNeXtLarge.pth`")
@@ -282,9 +339,14 @@ if uploaded is not None:
 			idx, conf, probs = predict(model, tensor)
 
 		pred_label = class_names[idx] if idx < len(class_names) else f"Class {idx}"
-		st.success(f"Predicted Class ID: {idx}")
-		st.write(f"Label: {pred_label}  (confidence: {conf:.2%})")
+
+		st.markdown("---")
+		st.subheader("Prediction Result")
+		col_res1, col_res2 = st.columns(2)
+		with col_res1:
+			st.success(f"**{pred_label}**")
+		with col_res2:
+			st.metric("Confidence", f"{conf:.2%}")
 
 else:
 	st.info("Please upload an image to begin.")
-
