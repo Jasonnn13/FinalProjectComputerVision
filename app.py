@@ -232,7 +232,7 @@ with col1:
 with col2:
 	# Prefer local static image if present; fallback to remote URL
 	hero_local = PUBLIC_DIR / "1.png"
-	st.image(str(hero_local), use_container_width=True, width=500)
+	st.image(str(hero_local), width='stretch', width=500)
 
 # --- INFO SECTION ---
 st.divider()
@@ -322,7 +322,7 @@ with st.sidebar:
 	]:
 		img_path = PUBLIC_DIR / rel
 		st.caption(f"{label} (from {img_path.name})")
-		st.image(str(img_path), use_container_width=True)
+		st.image(str(img_path), width='stretch')
 		shown_any = True
 
 	if not shown_any:
@@ -350,7 +350,7 @@ uploaded = st.file_uploader(
 if uploaded is not None:
 	image_bytes = uploaded.read()
 	img = Image.open(io.BytesIO(image_bytes))
-	st.image(img, caption="Uploaded Image", use_container_width=True)
+	st.image(img, caption="Uploaded Image", width='stretch')
 
 	if st.button("Predict", type="primary"):
 		with st.spinner("Running inference..."):
